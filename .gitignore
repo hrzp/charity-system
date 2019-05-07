@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.sqlite
+venv/
+app.egg-info/
+sendgrid.env
+.vscode/
+ex.sh
+charity.egg*
