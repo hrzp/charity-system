@@ -1,13 +1,12 @@
-Alert = (function() {
+Alert = (function () {
   var self = {};
 
   self.loaderObj = null;
 
-  self.Loader = function() {
+  self.Loader = function () {
     self.loaderObj = swal({
       title: "Please Wait",
-      imageUrl:
-        "https://cdn.dribbble.com/users/23375/screenshots/1315230/firedribbble.gif",
+      imageUrl: "https://cdn.dribbble.com/users/23375/screenshots/1315230/firedribbble.gif",
       imageAlt: "Loader",
       backdrop: `
         rgba(23, 24, 33, 0.81)
@@ -18,7 +17,7 @@ Alert = (function() {
     }).catch(swal.noop);
   };
 
-  self.StopLoader = function() {
+  self.StopLoader = function () {
     swal({
       timer: 0.1,
       showConfirmButton: false,
@@ -26,7 +25,7 @@ Alert = (function() {
     }).catch(swal.noop);
   };
 
-  self.Info = function(msg) {
+  self.Info = function (msg) {
     swal({
       title: "<strong>Info</strong>",
       type: "info",
@@ -37,8 +36,7 @@ Alert = (function() {
   return self;
 })();
 
-const routes = [
-  {
+const routes = [{
     path: "/",
     component: httpVueLoader("components/home.vue")
   },
@@ -97,11 +95,21 @@ const routes = [
   {
     path: "/payment",
     component: httpVueLoader("components/payment.vue")
-  }
+  },
+  {
+    path: "/admin/base-category",
+    component: httpVueLoader("components/admin_components/base-info/category.vue")
+  },
 ];
 
 const router = new VueRouter({
   routes
+});
+
+Vue.directive('init', {
+  bind: function (el, binding, vnode) {
+    vnode.context[binding.arg] = binding.value;
+  }
 });
 
 const app = new Vue({
@@ -139,10 +147,10 @@ const app = new Vue({
     },
     isSignIn(callBack) {
       this.$http.get("/user/is-signin").then(
-        function(response) {
+        function (response) {
           this.userInfo = response.data;
         },
-        function(response) {
+        function (response) {
           toastr.error("Error in Connection - " + response.data.msg, "Error", {
             timeOut: 5000,
             closeButton: true
@@ -167,11 +175,11 @@ const app = new Vue({
     },
     singout() {
       this.$http.get("/user/signout").then(
-        function(response) {
+        function (response) {
           this.userInfo = response.data;
           router.push("/");
         },
-        function(response) {
+        function (response) {
           toastr.error("Error in Connection - " + response.data.msg, "Error", {
             timeOut: 5000,
             closeButton: true
@@ -186,6 +194,6 @@ const app = new Vue({
   }
 }).$mount("#app");
 
-$(document).ready(function() {
+$(document).ready(function () {
   $(".mdb-select").material_select();
 });

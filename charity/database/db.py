@@ -118,4 +118,22 @@ class PasswordHistory(Base):
         return '<User %r>' % (self.user)
 
 
+class BaseCategory(Base):
+    __tablename__ = 'base_category'
+    id = sa.Column(sa.Integer, primary_key=True)
+    item = sa.Column(sa.Unicode(1024), nullable=False, unique=True)
+
+
+class BaseItem(Base):
+    __tablename__ = 'base_item'
+    id = sa.Column(sa.Integer, primary_key=True)
+    item = sa.Column(sa.Unicode(2048), nullable=False)
+    category_id = sa.Column(sa.Integer, sa.ForeignKey('base_category.id'))
+    category = relationship('BaseCategory')
+
+    def __init__(self, item=None, category=None):
+        self.item = item
+        self.category = category
+
+
 Base.metadata.create_all()

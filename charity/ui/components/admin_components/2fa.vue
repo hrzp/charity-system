@@ -112,9 +112,6 @@ module.exports = {
       );
     }
   },
-  // components: {
-
-  // },
   mounted() {},
   created() {
     this.init();

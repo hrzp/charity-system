@@ -15,3 +15,8 @@ def register_restless(manager):
                        'password', 'force_to_change_password',
                        'mail', 'mail_verified'])
     manager.create_api(db.Role, methods=['GET'], exclude_columns=[])
+    manager.create_api(db.BaseCategory, methods=[
+                       'GET', 'POST', 'DELETE', 'PUT'], exclude_columns=[],
+                       collection_name="base-category")
+    manager.create_api(db.BaseItem, methods=[
+                       'GET', 'POST', 'DELETE', 'PUT'], exclude_columns=[])
