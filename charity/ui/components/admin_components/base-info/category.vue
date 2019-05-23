@@ -30,6 +30,9 @@
         <div class="card-body text-primary">
           <div class="card-text">
             <div class="card">
+              <div>
+                <search :callback="getData" :fileds="['item']"></search>
+              </div>
               <div id="table" class="table-editable">
                 <table class="table table-bordered table-responsive-md table-striped text-center">
                   <tr>
@@ -60,7 +63,7 @@
                 </table>
               </div>
             </div>
-            <c-p :callback="getData" :numbers="totalPages"></c-p>
+            <pagination :callback="getData" :numbers="totalPages" :cp="currentPage"></pagination>
           </div>
         </div>
       </div>
@@ -71,8 +74,8 @@
 <script>
 module.exports = {
   components: {
-    "table-vue": httpVueLoader("components/common/table.vue"),
-    "c-p": httpVueLoader("components/common/customPaginate.vue")
+    pagination: httpVueLoader("components/common/customPaginate.vue"),
+    search: httpVueLoader("components/common/search.vue")
   },
   data: function() {
     return {
@@ -80,7 +83,8 @@ module.exports = {
       item: null,
       tmpValue: null,
       currentPage: 1,
-      totalPages: 1
+      totalPages: 1,
+      query: null
     };
   },
   methods: {
@@ -190,12 +194,36 @@ module.exports = {
           });
       }, 2);
     },
-    getData(page) {
+    initGetData(page, query) {
+      if (!page) {
+        page = 1; // If called form search component
+      } else {
+        if (this.query) {
+          query = this.query;
+        }
+      }
+      if (!query) {
+        query = { filters: [] };
+      } else {
+        this.query = query;
+      }
       this.currentPage = page;
+      return { page: page, query: query };
+    },
+    getData(page, query) {
+      let res = this.initGetData(page, query);
+      page = res.page;
+      query = res.query;
       let app = this;
+      QUERY = Object.assign(
+        { order_by: [{ field: "id", direction: "desc" }] },
+        query
+      );
       axios
         .get("/api/base-category?page=" + page, {
-          params: { q: { order_by: [{ field: "id", direction: "desc" }] } }
+          params: {
+            q: QUERY
+          }
         })
         .then(
           function(response) {

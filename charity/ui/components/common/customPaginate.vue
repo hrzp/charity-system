@@ -2,11 +2,11 @@
   <div>
     <nav aria-label="Page navigation" class="custom-pagination">
       <ul class="pagination pagination-circle pg-blue">
-        <li class="page-item" :class="{'disabled': currentPage==1}">
+        <li class="page-item" :class="{'disabled': cp==1}">
           <a v-on:click="changePage(1)" class="page-link">First</a>
         </li>
-        <li class="page-item" :class="{'disabled': currentPage==1}">
-          <a v-on:click="changePage(currentPage-1)" class="page-link" aria-label="Previous">
+        <li class="page-item" :class="{'disabled': cp==1}">
+          <a v-on:click="changePage(cp-1)" class="page-link" aria-label="Previous">
             <span aria-hidden="true">&laquo;</span>
             <span class="sr-only">Previous</span>
           </a>
@@ -15,17 +15,17 @@
           v-for="(page, index) in pages"
           v-bind:key="index"
           class="page-item"
-          :class="{'active': page==currentPage}"
+          :class="{'active': page==cp}"
         >
           <a class="page-link" v-on:click="changePage(page)">{{page}}</a>
         </li>
-        <li class="page-item" :class="{'disabled': currentPage==numbers}">
-          <a v-on:click="changePage(currentPage+1)" class="page-link" aria-label="Next">
+        <li class="page-item" :class="{'disabled': cp==numbers}">
+          <a v-on:click="changePage(cp+1)" class="page-link" aria-label="Next">
             <span aria-hidden="true">&raquo;</span>
             <span class="sr-only">Next</span>
           </a>
         </li>
-        <li class="page-item" :class="{'disabled': currentPage==numbers}">
+        <li class="page-item" :class="{'disabled': cp==numbers}">
           <a v-on:click="changePage(numbers)" class="page-link">Last</a>
         </li>
         <li>
@@ -50,18 +50,19 @@ module.exports = {
   },
   data: function() {
     return {
-      currentPage: 1,
+      // cp: 1,
       entery: null
       // pages: []
     };
   },
   props: {
-    numbers: Number,
-    callback: Function
+    numbers: Number, // Total Page Number
+    callback: Function,
+    cp: Number // Current Page
   },
   computed: {
     pages: function() {
-      return this.paginationRange(this.currentPage, this.numbers);
+      return this.paginationRange(this.cp, this.numbers);
     }
   },
   methods: {
@@ -99,7 +100,7 @@ module.exports = {
       page = page < 1 ? 1 : page;
       page = page > this.numbers ? this.numbers : page;
       this.callback(page);
-      this.currentPage = page;
+      this.cp = page;
     }
   },
   mounted() {}
@@ -107,10 +108,6 @@ module.exports = {
 </script>
 
 <style lang="css" scoped>
-.input-text {
-  /* background-color: white !important; */
-  /* border-bottom: 1px rgb(51, 72, 105) solid !important; */
-}
 .page-entry {
   padding: 10px;
   font-size: 18px;
