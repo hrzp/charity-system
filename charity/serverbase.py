@@ -3,7 +3,6 @@ from charity.config import server_config as config
 from flask_jwt_extended import JWTManager
 from flask import request, g, redirect, session
 from charity.database import db
-from pymongo import MongoClient
 from datetime import timedelta
 from datetime import timedelta
 from io import BytesIO as IO

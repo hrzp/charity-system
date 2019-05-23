@@ -87,6 +87,7 @@ module.exports = {
             "Please check your mail and click on activate link, then Login again";
           this.signout();
           Alert.StopLoader();
+          router.push("/");
         },
         function(response) {
           toastr.error("Error in Connection - " + response.data.msg, "Error", {
@@ -108,17 +109,16 @@ module.exports = {
       );
     }
   },
-  updated() {
+  mounted() {
     if (!this.$root.checkLoginStatus(["admin", "employee"])) {
       toastr.error("Your are not allow to open this", "...", {
         timeOut: 5000,
         closeButton: true
       });
       router.push("/");
+    } else {
+      this.init();
     }
-  },
-  created() {
-    this.init();
   }
 };
 </script>

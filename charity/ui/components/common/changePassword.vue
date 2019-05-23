@@ -53,7 +53,6 @@ module.exports = {
     init() {
       this.getCaptcha();
     },
-
     getCaptcha() {
       this.$http.get("/general/new-captcha").then(
         function(response) {
@@ -67,7 +66,6 @@ module.exports = {
         }
       );
     },
-
     sendMail() {
       if (!this.captchaValue) {
         toastr.error("Please enter the captcha value", "Error", {
@@ -99,7 +97,6 @@ module.exports = {
         }
       );
     },
-
     signout() {
       this.$http.get("/user/signout").then(
         function(response) {},
@@ -112,17 +109,16 @@ module.exports = {
       );
     }
   },
-  updated() {
-    if (!this.$root.checkLoginStatus(["admin", "super admin", "employee"])) {
+  mounted() {
+    if (!this.$root.checkLoginStatus(["admin", "employee"])) {
       toastr.error("Your are not allow to open this", "...", {
         timeOut: 5000,
         closeButton: true
       });
       router.push("/");
+    } else {
+      this.init();
     }
-  },
-  created() {
-    this.init();
   }
 };
 </script>

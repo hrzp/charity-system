@@ -7,7 +7,7 @@ html {
 
 .background-image {
   /* background-image: url('http://666a658c624a3c03a6b2-25cda059d975d2f318c03e90bcf17c40.r92.cf1.rackcdn.com/unsplash_527bf56961712_1.JPG'); */
-  background-image: url('https://www.google.com/url?sa=i&rct=j&q=&esrc=s&source=imgres&cd=&cad=rja&uact=8&ved=2ahUKEwjaqqaIkvvdAhWszoUKHZmfBacQjRx6BAgBEAU&url=https%3A%2F%2Fwww.solwininfotech.com%2Fbackground-2%2F&psig=AOvVaw1cSF0Orl8k_E2Cm-x9ops1&ust=1539172712107627');
+  /* background-image: url('https://www.google.com/url?sa=i&rct=j&q=&esrc=s&source=imgres&cd=&cad=rja&uact=8&ved=2ahUKEwjaqqaIkvvdAhWszoUKHZmfBacQjRx6BAgBEAU&url=https%3A%2F%2Fwww.solwininfotech.com%2Fbackground-2%2F&psig=AOvVaw1cSF0Orl8k_E2Cm-x9ops1&ust=1539172712107627'); */
   background-size: cover;
   background-repeat: no-repeat;
   display: block;
@@ -21,23 +21,11 @@ html {
 }
 
 
-/* .content {
-  background: rgba(255, 255, 255, 0.35);
-  /* border-radius: 3px; */
-  /* box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25); */
-  /* font-family: Helvetica Neue, Helvetica, Arial, sans-serif; */
-  /* top: 10px;
-  left: 0; */
-  /* position: fixed; */
-  /* margin-left: 20px;
-  margin-right: 20px; */
-  /* right: 0; */
-  /* z-index: 2; */
-  /* padding: 0 10px; */
-} */
-
 body {
-  /* background-image: url('https://i.pinimg.com/originals/3a/c0/61/3ac0618474996b43abc1c0e01c69a505.jpg'); */
+  background-image: url('../image/bg.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 
   /* background-color: #56baed; */
   font-family: "Poppins", sans-serif;

@@ -5,8 +5,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
 import time
 
-engine = sa.create_engine('postgresql://reza:1234@localhost/charity',
-                          convert_unicode=True, echo=False, pool_recycle=3600)
+engine = sa.create_engine('postgresql://admin:xxx1234xxx@localhost/charity',
+                          convert_unicode=True, echo=False, pool_recycle=3600, pool_size=20, max_overflow=0)
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
