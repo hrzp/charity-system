@@ -2,7 +2,7 @@
   <div class>
     <hr>
     <div class="d-flex justify-content-center cp-head">
-      <p class="center" style="color: black">Base Categories</p>
+      <p class="center" style="color: black">اطلاعات خانواده</p>
     </div>
     <div class="d-flex justify-content-center input-box">
       <div class="card form-box">

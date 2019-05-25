@@ -119,7 +119,7 @@ module.exports = {
 };
 </script>
 
-<style lang="css">
+<style lang="css" scoped>
 .input-info {
   margin-top: 10%;
 }

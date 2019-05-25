@@ -11,6 +11,7 @@ from charity.common.mail import send_mail
 from charity.database import db as db
 from datetime import datetime
 from time import time as now
+from sqlalchemy import or_
 import hashlib
 import string
 import random
@@ -45,9 +46,12 @@ def add_user(data):
     if data['user_type'] not in user_types:
         raise ErrorToClient('Not Valid User Type')
     username = data.get('username').lower()
+    mail = data['mail']
     str = string.ascii_letters + string.digits
     password = ''.join(random.choices(str, k=8))
-    res = g.db_session.query(db.User).filter_by(username=username).first()
+    res = g.db_session.query(db.User).filter(
+        or_(db.User.username == username,
+            db.User.mail == mail)).first()
     if res is not None:
         raise ErrorToClient('user already exists')
     hash_password = hashlib.sha1(password.encode('utf-8')).hexdigest()
@@ -57,7 +61,7 @@ def add_user(data):
     u.user_type = data['user_type']
     u.roles.append(new_role(data['user_type'], data['user_type'], False))
     u.name = data['name']
-    u.mail = data['mail']
+    u.mail = mail
     u.active = data['active']
     u.force_to_change_password = False
     g.db_session.add(u)
@@ -117,13 +121,6 @@ def logout2():
     return jsonify({"msg": "Refresh token revoked"}), 200
 
 
-# A blacklisted access token will not be able to access this any more
-@bp.route('/protected', methods=['GET'])
-@jwt_required
-def protected():
-    return jsonify({'hello': 'world'})
-
-
 # *****************************
 # *****************************
 # **** USER GENRAL ROUTES *****
@@ -132,6 +129,7 @@ def protected():
 
 
 @bp.route('/new', methods=['POST'])
+@jwt_required
 @acc('admin', 'allow_create_user')
 def new():
     data = json.loads(request.data)
@@ -189,6 +187,7 @@ def login():
 
 
 @bp.route('/signout', methods=['GET', 'POST'])
+@jwt_required
 def _signout():
     session['user_id'] = None
     return jsonify({
@@ -199,7 +198,7 @@ def _signout():
 
 
 @bp.route('/is-signin', methods=['GET', 'POST'])
-# @jwt_required
+@jwt_required
 def is_signin():
     if g.user_id is None:
         return jsonify({
@@ -218,6 +217,7 @@ def is_signin():
 
 
 @bp.route('/info', methods=['GET'])
+@jwt_required
 def _info():
     user = g.db_session.query(db.User).filter_by(id=g.user_id).first()
     login_history = g.db_session.query(db.LoginHistory).filter_by(
@@ -239,6 +239,7 @@ def _info():
 
 @bp.route('/list', methods=['GET'])
 @acc('admin')
+@jwt_required
 def _list():
     users = g.db_session.query(db.User).all()
     user_list = list()
@@ -252,7 +253,8 @@ def _list():
 
 
 @bp.route('/login-report', methods=['POST'])
-@acc('admin')
+@acc('admin', 'see_login_history')
+@jwt_required
 def login_report():
     data = json.loads(request.data)
     from_date = int(data['from_date'])
@@ -281,7 +283,8 @@ def login_report():
 
 
 @bp.route('/log-report', methods=['POST'])
-@acc('admin')
+@acc('admin', 'see_logs')
+@jwt_required
 def logs_report():
     data = json.loads(request.data)
     from_date = data['from_date']
@@ -302,6 +305,7 @@ def logs_report():
 
 
 @bp.route('/sendmailverifaction', methods=['POST'])
+@jwt_required
 def send_mail_verifaction():
     data = json.loads(request.data)
     cap = hashlib.sha256(data['captcha_value'].encode('utf-8')).hexdigest()
@@ -356,6 +360,7 @@ def mail_verifaction(token):
 
 
 @bp.route('/changepassword', methods=['POST'])
+@jwt_required
 def changepassword():
     data = json.loads(request.data)
     cap = hashlib.sha256(data['captcha_value'].encode('utf-8')).hexdigest()
@@ -453,6 +458,7 @@ def _changepassword_post(token):
 
 
 @bp.route('/change-role', methods=['POST'])
+@jwt_required
 @acc('admin', 'change_user_roles')
 def change_role():
     data = json.loads(request.data)
@@ -478,6 +484,7 @@ def change_role():
 
 
 @bp.route('/changeactivation', methods=['POST'])
+@jwt_required
 @acc('admin', 'change_user_activation')
 def change_activation():
     data = json.loads(request.data)

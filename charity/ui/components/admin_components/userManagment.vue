@@ -1,5 +1,5 @@
 <template type="text/x-template">
-  <div class>
+  <div class="animated fadeInUp">
     <hr>
 
     <!--Panel-->
@@ -219,24 +219,17 @@ module.exports = {
     },
 
     getUsersInfo() {
-      this.$http.get("/api/user").then(
-        function(response) {
-          if (response.data.num_results <= 0) {
-            toastr.warn("There is no user", "Error", {
-              timeOut: 5000,
-              closeButton: true
-            });
-            return;
-          }
-          this.users = response.data.objects;
-        },
-        function(response) {
-          toastr.error("Error in Connection - " + response.data.msg, "Error", {
-            timeOut: 5000,
+      let app = this;
+      API.get("/api/user").then(function(response) {
+        if (response.data.num_results <= 0) {
+          toastr.warn("There is no user", "Error", {
+            timeOut: 8000,
             closeButton: true
           });
+          return;
         }
-      );
+        app.users = response.data.objects;
+      });
     },
 
     gotoRoles(userId) {
@@ -256,10 +249,6 @@ module.exports = {
         });
         return;
       }
-      // if ( !this.password ) {
-      //   toastr.error('Please Enter Password', 'Error', {timeOut: 5000, closeButton: true})
-      //   return;
-      // }
       if (!this.name) {
         toastr.error("Please Enter Full Name", "Error", {
           timeOut: 5000,
@@ -281,10 +270,6 @@ module.exports = {
         return;
       }
       Alert.Loader();
-      // if ( this.password != this.confirmPassword ) {
-      //   toastr.error('Passwords Are Diffrent', 'Error', {timeOut: 5000, closeButton: true})
-      //   return;
-      // }
       let data = {
         username: this.username,
         password: this.password,
@@ -293,45 +278,29 @@ module.exports = {
         mail: this.mail,
         active: this.activeUser
       };
-      this.$http.post("/user/new", data).then(
-        function(response) {
-          toastr.success(response.data.msg, "", {
-            timeOut: 5000,
-            closeButton: true
-          });
-
-          this.init();
-          Alert.StopLoader();
-        },
-        function(response) {
-          toastr.error("Error in Connection - " + response.data.msg, "Error", {
-            timeOut: 5000,
-            closeButton: true
-          });
-        }
-      );
+      let app = this;
+      API.post("/user/new", data).then(function(response) {
+        toastr.success(response.data.msg, "Success", {
+          timeOut: 8000,
+          closeButton: true
+        });
+        app.init();
+        Alert.StopLoader();
+      });
     },
 
     changeActivation(userId) {
       let data = {
         user_id: userId
       };
-      this.$http.post("/user/changeactivation", data).then(
-        function(response) {
-          toastr.success(response.data.msg, "", {
-            timeOut: 5000,
-            closeButton: true
-          });
-
-          this.init();
-        },
-        function(response) {
-          toastr.error("Error in Connection - " + response.data.msg, "Error", {
-            timeOut: 5000,
-            closeButton: true
-          });
-        }
-      );
+      let app = this;
+      API.post("/user/changeactivation", data).then(function(response) {
+        toastr.success(response.data.msg, "", {
+          timeOut: 8000,
+          closeButton: true
+        });
+        app.init();
+      });
     }
   },
   computed: {
@@ -342,14 +311,16 @@ module.exports = {
       return false;
     }
   },
-  mounted() {},
+  mounted() {
+    this.$root.isSignin();
+  },
   created() {
     this.init();
   }
 };
 </script>
 
-<style lang="css">
+<style lang="css" scoped>
 .input-info {
   margin-top: 10%;
 }

@@ -6,24 +6,31 @@
   <meta charset="utf-8">
   <link rel="shortcut icon" type="image/png" href="assets/icon/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-  <!-- Bootstrap core CSS -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Material Design Bootstrap -->
   <link href="assets/css/mdb.min.css" rel="stylesheet">
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js"></script>
-  <script src="https://unpkg.com/vue-router"></script>
-  <script src="https://unpkg.com/vue-resource"></script>
-  <script src="https://unpkg.com/http-vue-loader"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@7.28.4/dist/sweetalert2.min.css">
   <link rel="stylesheet" href="assets/css/app.css">
 </head>
 
 <body style="background-color: rgb(101, 101, 101);">
-  <!-- <div class="background-image"></div> -->
-  <div id="app">
 
+  <div class="lds-parent" hidden>
+    <div class="lds-roller">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <p style="position: relative;top: 100%;left: 10%;">Loading...</p>
+    </div>
+  </div>
+  <div id="app">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <a class="navbar-brand" href="#">Charity System</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
@@ -39,10 +46,10 @@
           </li>
           <li class="nav-item dropdown" v-if="userInfo.isLogin">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-              aria-expanded="false">Payment</a>
+              aria-expanded="false">Base Info</a>
             <div class="dropdown-menu">
               <a class="dropdown-item">
-                <router-link to="/payment">Payment</router-link>
+                <router-link to="/admin/base-category">Category</router-link>
               </a>
               <div class="dropdown-divider"></div>
             </div>
@@ -64,10 +71,6 @@
               <a class="dropdown-item">
                 <router-link to="/user/change-password">Change Password</router-link>
               </a>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" v-if="userInfo.userType='super admin'">
-                <router-link to="/admin/dashboard/shutdown-api">Shutdown Api</router-link>
-              </a>
             </div>
           </li>
           <li class="nav-item dropdown" v-if="userInfo.userType == 'admin' || userInfo.userType == 'super admin'">
@@ -82,7 +85,7 @@
         </ul>
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
-            <a class="nav-link" @click="goToDashboard(userInfo.userType)"> User: {{ userInfo.fullName }} </a>
+            <a class="nav-link" @click="goToDashboard(userInfo.userType)"> User: {{ userInfo.name }} </a>
           </li>
           <li class="nav-item" v-show="!userInfo.isLogin">
             <a class="nav-link">
@@ -99,17 +102,16 @@
 
   </div>
 
-  <!-- JQuery -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.js"></script>
+  <script src="https://unpkg.com/vue-router"></script>
+  <script src="https://unpkg.com/vue-resource"></script>
+  <script src="https://unpkg.com/http-vue-loader"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <!-- Bootstrap tooltips -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js">
   </script>
-  <!-- Bootstrap core JavaScript -->
   <script type="text/javascript"
     src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js"></script>
-  <!-- MDB core JavaScript(Pro) -->
   <script type="text/javascript" src="assets/js/mdb.min.js"></script>
-
   <script type="text/javascript" src="https://unpkg.com/persian-date@1.0.5/dist/persian-date.min.js"></script>
   <script type="text/javascript" src="https://unpkg.com/persian-datepicker@1.1.3/dist/js/persian-datepicker.min.js">
   </script>
@@ -120,6 +122,8 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
   <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+  <script src="assets/js/routes.js"></script>
+  <script src="assets/js/Alert.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 

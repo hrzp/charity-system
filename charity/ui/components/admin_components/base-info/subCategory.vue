@@ -2,14 +2,17 @@
   <div class>
     <hr>
     <div class="d-flex justify-content-center cp-head">
-      <p class="center" style="color: black">Base Categories</p>
+      <p class="center" style="color: black">Sub Categories: {{catName}}</p>
+      <button class="btn btn-mdb-color back-btn btn-sm btn-rounded" v-on:click="back">
+        <i class="fa fa-arrow-circle-left"></i> Back
+      </button>
     </div>
     <div class="d-flex justify-content-center input-box">
       <div class="card form-box">
         <form class="form-group">
           <input
             v-model="item"
-            placeholder="Category name"
+            placeholder="Item name"
             type="text"
             class="form-control col-3"
             @keyup.enter="save"
@@ -38,7 +41,6 @@
                   <tr>
                     <th class="text-center">ID</th>
                     <th class="text-center">Item</th>
-                    <th class="text-center">Add Subset</th>
                     <th class="text-center">Remove</th>
                   </tr>
                   <tr v-for="(item, index) in rows" v-bind:key="index">
@@ -51,13 +53,6 @@
                       @keyup.enter="leave($event, item.id, true)"
                       contenteditable="true"
                     >{{item.item}}</td>
-                    <td>
-                      <button
-                        type="button"
-                        v-on:click="addSubset(item.id)"
-                        class="btn btn-primary btn-rounded btn-sm my-0"
-                      >Add Subset</button>
-                    </td>
                     <td>
                       <span class="table-remove">
                         <button
@@ -85,8 +80,11 @@ module.exports = {
     pagination: httpVueLoader("components/common/customPaginate.vue"),
     search: httpVueLoader("components/common/search.vue")
   },
+
   data: function() {
     return {
+      catName: "",
+      id: null,
       rows: null,
       item: null,
       tmpValue: null,
@@ -100,6 +98,9 @@ module.exports = {
       let currentID = event.target.id;
       let nextID = parseInt(currentID.split("-")[1]) + 1;
       $("#ele-" + nextID).focus();
+    },
+    back() {
+      router.push("/admin/base-category");
     },
     leave(event, id, byEnter = false) {
       event.target.textContent = event.target.textContent.trim();
@@ -115,7 +116,7 @@ module.exports = {
         item: event.target.textContent
       };
       let app = this;
-      API.put("/api/base-category/" + id, data).then(function(response) {
+      API.put("/api/base-item/" + id, data).then(function(response) {
         toastr.info("Edit successfully", {
           timeOut: 6000,
           closeButton: true
@@ -130,12 +131,9 @@ module.exports = {
     assginID(id) {
       return "ele-" + id;
     },
-    addSubset(id) {
-      router.push("/admin/base-item/" + id);
-    },
     remove(id) {
       let app = this;
-      API.delete("/api/base-category/" + id).then(function(response) {
+      API.delete("/api/base-item/" + id).then(function(response) {
         toastr.success("Deleted successfully", {
           timeOut: 5000,
           closeButton: true
@@ -149,15 +147,16 @@ module.exports = {
     },
     save() {
       if (!this.item) {
-        toastr.info("Enter a category name", {
-          timeOut: 5000,
+        toastr.info("Enter an item name", {
+          timeOut: 8000,
           closeButton: true
         });
         return;
       }
       let app = this;
-      API.post("/api/base-category", {
-        item: app.item
+      API.post("/api/base-item", {
+        item: app.item,
+        category: { id: app.id }
       }).then(function(response) {
         toastr.success("Saved successfully", {
           timeOut: 5000,
@@ -169,18 +168,18 @@ module.exports = {
       });
     },
     preventEnter() {
-      setTimeout(function() {
-        $(".editable")
-          .on("paste", function(e) {
-            var $self = $(this);
-            setTimeout(function() {
-              $self.html($self.text());
-            }, 0);
-          })
-          .on("keypress", function(e) {
-            return e.which != 13;
-          });
-      }, 2);
+      // setTimeout(function() {
+      //   $(".editable")
+      //     .on("paste", function(e) {
+      //       var $self = $(this);
+      //       setTimeout(function() {
+      //         $self.html($self.text());
+      //       }, 0);
+      //     })
+      //     .on("keypress", function(e) {
+      //       return e.which != 13;
+      //     });
+      // }, 2);
     },
     initGetData(page, query) {
       if (!page) {
@@ -202,24 +201,38 @@ module.exports = {
       let res = this.initGetData(page, query);
       page = res.page;
       query = res.query;
+      query.filters.push({ name: "category_id", op: "eq", val: this.id });
       let app = this;
       QUERY = Object.assign(
         { order_by: [{ field: "id", direction: "desc" }] },
         query
       );
-      API.get("/api/base-category?page=" + page, { params: { q: QUERY } }).then(
-        function(response) {
-          app.totalPages = response.data.total_pages;
-          app.rows = response.data.objects;
-          app.preventEnter();
-        }
-      );
+      API.get("/api/base-item?page=" + page, {
+        params: { q: QUERY }
+      }).then(function(response) {
+        app.totalPages = response.data.total_pages;
+        app.rows = response.data.objects;
+        app.preventEnter();
+      });
+    },
+    getCatInfo() {
+      let app = this;
+      API.get("/api/base-category/" + this.id).then(function(response) {
+        console.log(response);
+        app.catName = response.data.item;
+      });
     },
     init() {
       this.getData(1);
+      this.getCatInfo();
     }
   },
   mounted() {
+    if (!this.$route.params.id) {
+      toastr.error("Worong url", "Error", { timeOut: 8000 });
+      return;
+    }
+    this.id = this.$route.params.id;
     this.$root.isSignin();
     this.init();
   }
@@ -271,5 +284,16 @@ td {
   width: 130px;
   height: 15px;
   border: none;
+}
+.back-btn {
+  float: right;
+  font-size: 12px !important;
+  height: 35px;
+  margin-top: 13px;
+}
+.back-btn i {
+  float: left !important;
+  font-size: 18px !important;
+  margin-right: 10px;
 }
 </style>

@@ -72,21 +72,15 @@ module.exports = {
         username: this.username,
         password: this.password
       };
-      this.$http.post("/user/login", data).then(
-        function(response) {
-          toastr.success("Wellcome Back: " + response.data.name, {
-            timeOut: 5000,
-            closeButton: true
-          });
-          this.doAction(response.data);
-        },
-        function(response) {
-          toastr.error(response.data.msg, "Error in Connection", {
-            timeOut: 5000,
-            closeButton: true
-          });
-        }
-      );
+      let app = this;
+      API.post("/user/login", data).then(function(response) {
+        toastr.success("Wellcome Back: " + response.data.name, {
+          timeOut: 5000,
+          closeButton: true
+        });
+        setHeaders(response.data.access_token, response.data.refresh_token);
+        app.doAction(response.data);
+      });
     },
 
     doAction(data) {

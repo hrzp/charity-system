@@ -1,122 +1,5 @@
-Alert = (function () {
-  var self = {};
-
-  self.loaderObj = null;
-
-  self.animation = function () {
-    let anims = [
-      "https://media1.tenor.com/images/75643fee47adf65a46b50261be687697/tenor.gif?itemid=7830200",
-      "https://cdn.dribbble.com/users/255512/screenshots/2192065/animation.gif",
-      "https://cdn.dribbble.com/users/279765/screenshots/1918018/loadinganimation.gif",
-      "https://cdn.dribbble.com/users/563824/screenshots/3633228/untitled-5.gif",
-      "https://mir-s3-cdn-cf.behance.net/project_modules/disp/b6e0b072897469.5bf6e79950d23.gif",
-      "https://createwebsite.net/wp-content/uploads/2015/09/Loader1.gif",
-    ]
-    return anims[Math.floor(Math.random() * anims.length)]
-  }
-
-  self.Loader = function () {
-    let app = self;
-    self.loaderObj = swal({
-      title: "Please Wait",
-      imageUrl: app.animation(),
-      imageAlt: "Loader",
-      backdrop: `
-        rgba(23, 24, 33, 0.81)
-      `,
-      timer: 8000,
-      allowOutsideClick: false,
-      showConfirmButton: false
-    }).catch(swal.noop);
-  };
-
-  self.StopLoader = function () {
-    swal({
-      timer: 0.1,
-      showConfirmButton: false,
-      allowOutsideClick: false
-    }).catch(swal.noop);
-  };
-
-  self.Info = function (msg) {
-    swal({
-      title: "<strong>Info</strong>",
-      type: "info",
-      html: "<pre>" + msg + "</pre>"
-    }).catch(swal.noop);
-  };
-
-  return self;
-})();
-
-const routes = [{
-  path: "/",
-  component: httpVueLoader("components/home.vue")
-},
-{
-  path: "/login",
-  component: httpVueLoader("components/login.vue")
-},
-{
-  path: "/admin",
-  component: httpVueLoader("components/admin.vue")
-},
-{
-  path: "/admin/dashboard",
-  component: httpVueLoader("components/admin.vue")
-},
-{
-  path: "/admin/2fa",
-  component: httpVueLoader("components/admin_components/2fa.vue")
-},
-{
-  path: "/admin/dashboard/wallet-managment/:id",
-  component: httpVueLoader("components/admin_components/walletManagement.vue")
-},
-{
-  path: "/admin/dashboard/log-report",
-  component: httpVueLoader("components/admin_components/logs.vue")
-},
-{
-  path: "/admin/dashboard/login-report",
-  component: httpVueLoader("components/admin_components/loginHistory.vue")
-},
-{
-  path: "/admin/dashboard/role-managment",
-  component: httpVueLoader("components/admin_components/roleManagment.vue")
-},
-{
-  path: "/admin/dashboard/role-managment/:id",
-  component: httpVueLoader("components/admin_components/roleManagment.vue")
-},
-{
-  path: "/admin/dashboard/user-managment",
-  component: httpVueLoader("components/admin_components/userManagment.vue")
-},
-{
-  path: "/admin/dashboard/shutdown-api",
-  component: httpVueLoader("components/admin_components/shutdownApi.vue")
-},
-{
-  path: "/user/mail-verification",
-  component: httpVueLoader("components/common/mailVerification.vue")
-},
-{
-  path: "/user/change-password",
-  component: httpVueLoader("components/common/changePassword.vue")
-},
-{
-  path: "/payment",
-  component: httpVueLoader("components/payment.vue")
-},
-{
-  path: "/admin/base-category",
-  component: httpVueLoader("components/admin_components/base-info/category.vue")
-},
-];
-
 const router = new VueRouter({
-  routes
+  routes // from routes.jsloader: true,
 });
 
 Vue.directive('init', {
@@ -125,14 +8,18 @@ Vue.directive('init', {
   }
 });
 
+
 const app = new Vue({
   router,
-  data: {
-    userInfo: {
-      isLogin: false,
-      fullName: "Guest",
-      userType: "Guest",
-      roles: []
+  data: function () {
+    return {
+      loader: true,
+      userInfo: {
+        isLogin: false,
+        fullName: "Guest",
+        userType: "Guest",
+        roles: []
+      }
     }
   },
   methods: {
@@ -158,18 +45,15 @@ const app = new Vue({
         return false;
       }
     },
-    isSignIn(callBack) {
-      this.$http.get("/user/is-signin").then(
-        function (response) {
-          this.userInfo = response.data;
-        },
-        function (response) {
-          toastr.error("Error in Connection - " + response.data.msg, "Error", {
-            timeOut: 5000,
-            closeButton: true
-          });
+    isSignin(callBack) {
+      let app = this;
+      API.get("/user/is-signin").then(function (response) {
+        app.userInfo = response.data;
+        if (!app.userInfo.isLogin) {
+          router.push('/login');
+          toastr.info('You are not login', { timeOut: 8000 })
         }
-      );
+      });
     },
     goToDashboard(userType) {
       switch (userType) {
@@ -187,23 +71,23 @@ const app = new Vue({
       }
     },
     singout() {
-      this.$http.get("/user/signout").then(
+      let app = this;
+      API.get("/user/signout").then(
         function (response) {
-          this.userInfo = response.data;
+          setHeaders('', '')
+          app.userInfo = response.data;
           router.push("/");
-        },
-        function (response) {
-          toastr.error("Error in Connection - " + response.data.msg, "Error", {
-            timeOut: 5000,
+          toastr.success("Logout successfully", "Success", {
+            timeOut: 10000,
             closeButton: true
-          });
-        }
-      );
+          })
+        });
     }
   },
-  computed: {},
   mounted() {
-    this.isSignIn();
+    setTimeout(function () {
+      $('.lds-parent').hide(); // user jquery, because out of app
+    }, 2000)
   }
 }).$mount("#app");
 
@@ -211,44 +95,62 @@ $(document).ready(function () {
   $(".mdb-select").material_select();
 });
 
-
-
-jQuery.fn.putCursorAtEnd = function () {
-
-  return this.each(function () {
-
-    // Cache references
-    var $el = $(this),
-      el = this;
-
-    // Only focus if input isn't already
-    if (!$el.is(":focus")) {
-      $el.focus();
+function getHeaders(forAxios = false) {
+  let access_token = refresh_token = '';
+  if (localStorage.access_token) {
+    access_token = localStorage.getItem('access_token');
+  }
+  if (forAxios) {
+    return 'Bearer ' + access_token
+  }
+  return {
+    headers: {
+      'Authorization': 'Bearer ' + access_token
     }
+  }
+}
 
-    // If this function exists... (IE 9+)
-    if (el.setSelectionRange) {
+function setHeaders(access_token, refresh_token) {
+  localStorage.access_token = access_token;
+  localStorage.refresh_token = refresh_token;
+  API.defaults.headers.Authorization = 'Bearer ' + access_token;
+}
 
-      // Double the length because Opera is inconsistent about whether a carriage return is one character or two.
-      var len = $el.val().length * 2;
+function msgHandler(response) {
 
-      // Timeout seems to be required for Blink
-      setTimeout(function () {
-        el.setSelectionRange(len, len);
-      }, 1);
+}
+function pr() {
+  console.log.apply(console, arguments);
+}
 
-    } else {
+var API = axios.create({
+  timeout: 10000,
+  headers: { 'Authorization': getHeaders(true) }
+});
 
-      // As a fallback, replace the contents with itself
-      // Doesn't work in Chrome, but Chrome supports setSelectionRange
-      $el.val($el.val());
 
+// Api call error handling
+API.interceptors.response.use(null, function (error) {
+  let msg = '';
+  if (error.request.status == 0) {
+    msg = "Please check your internt conection or call site manager"
+  }
+  if (error.response && (error.response.status === 401 || error.response.status === 422)) {
+    if (error.response.data.msg == "Token has expired") {
+      msg = "your session has expired. Please login again"
     }
+    else {
+      msg = "You are not login"
+    }
+  }
+  if (error.response && error.response.status === 400) {
+    msg = error.response.data.msg;
+  }
+  toastr.error(msg, "Error", {
+    timeOut: 15000,
+    closeButton: true
+  })
 
-    // Scroll to the bottom, in case we're in a tall textarea
-    // (Necessary for Firefox and Chrome)
-    this.scrollTop = 999999;
+  return Promise.reject(error);
+});
 
-  });
-
-};

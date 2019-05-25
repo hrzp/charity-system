@@ -2,9 +2,9 @@
   <div class>
     <hr>
     <!--Search Panel-->
-    <div class="d-flex justify-content-center">
+    <div class="d-flex justify-content-center animated fadeInDown">
       <div class="card border-primary" style="width: 85%;">
-        <div class="card-header">Search Log History</div>
+        <div class="card-header custome-head">Search Log History</div>
         <div class="card-body text-primary">
           <div class="card-text">
             <div class>
@@ -128,49 +128,27 @@ module.exports = {
         from_date: this.fromDate,
         to_date: this.toDate
       };
-      this.$http.post("/user/log-report", data).then(
-        function(response) {
-          this.reports = response.data.args;
-          for (let i in this.reports) {
-            let item = this.reports[i];
-            let date = persianDate.unix(item.time);
-            item.time =
-              date.year() +
-              "-" +
-              this.fixDateZero(date.month()) +
-              "-" +
-              this.fixDateZero(date.day()) +
-              " " +
-              this.fixDateZero(date.hour()) +
-              ":" +
-              this.fixDateZero(date.minute()) +
-              ":" +
-              this.fixDateZero(date.second());
-          }
-        },
-        function(response) {
-          toastr.error("Error in Connection - " + response.data.msg, "Error", {
-            timeOut: 5000,
-            closeButton: true
-          });
+      let app = this;
+      API.post("/user/log-report", data).then(function(response) {
+        app.reports = response.data.args;
+        for (let i in app.reports) {
+          let item = app.reports[i];
+          let date = persianDate.unix(item.time);
+          item.time =
+            date.year() +
+            "-" +
+            app.fixDateZero(date.month()) +
+            "-" +
+            app.fixDateZero(date.day()) +
+            " " +
+            app.fixDateZero(date.hour()) +
+            ":" +
+            app.fixDateZero(date.minute()) +
+            ":" +
+            app.fixDateZero(date.second());
         }
-      );
+      });
     },
-
-    getUserList() {
-      this.$http.get("/user/list").then(
-        function(response) {
-          this.userList = response.data.args;
-        },
-        function(response) {
-          toastr.error("Error in Connection - " + response.data.msg, "Error", {
-            timeOut: 5000,
-            closeButton: true
-          });
-        }
-      );
-    },
-
     showMoreInfo(info) {
       Alert.Info(info);
     },
@@ -180,6 +158,7 @@ module.exports = {
     }
   },
   mounted() {
+    this.$root.isSignin();
     var vm = this;
     $(".from-date").persianDatepicker({
       initialValue: false,
@@ -246,6 +225,9 @@ module.exports = {
     $("#mySelect2").select2({
       ajax: {
         url: "http://127.0.0.1:5000/user/list",
+        headers: {
+          Authorization: getHeaders(true)
+        },
         data: function(params) {
           var query = {};
           // Query parameters will be ?search=[term]&type=public
@@ -273,7 +255,7 @@ module.exports = {
 };
 </script>
 
-<style lang="css">
+<style lang="css" scoped>
 .input-group.md-form.form-sm.form-1 input {
   border: 1px solid #bdbdbd;
   border-top-right-radius: 0.25rem;

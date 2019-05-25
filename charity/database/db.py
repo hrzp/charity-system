@@ -136,4 +136,46 @@ class BaseItem(Base):
         self.category = category
 
 
+class Relation(Base):
+    __tablename__ = 'relation'
+    id = sa.Column(sa.Integer, primary_key=True)
+    name = sa.Column(sa.Unicode(1024), nullable=False, unique=True)
+
+
+class PersonItem(Base):
+    __tablename__ = 'perosn_item'
+    id = sa.Column(sa.Integer, primary_key=True)
+    person_id = sa.Column(sa.Integer, sa.ForeignKey('person.id'))
+    base_item_id = sa.Column(sa.Integer, sa.ForeignKey('base_item.id'))
+
+
+class Person(Base):
+    __tablename__ = 'person'
+    id = sa.Column(sa.Integer, primary_key=True)
+    name = sa.Column(sa.Unicode(2048), nullable=False)
+    relation_id = sa.Column(sa.Integer, sa.ForeignKey('relation.id'))
+    relation = relationship('Relation')
+    year_of_birth = sa.Column(sa.Integer, nullable=True)
+    age = sa.Column(sa.Integer, nullable=True)
+    nationality = sa.Column(sa.Unicode(256), nullable=False)
+    sex = sa.Column(sa.Unicode(16), nullable=False)
+    learn = sa.Column(sa.Boolean, default=False)
+    priority = sa.Column(sa.Unicode(16), nullable=True)
+    phone1 = sa.Column(sa.Unicode(25), nullable=True)
+    phone2 = sa.Column(sa.Unicode(25), nullable=True)
+    items = relationship('BaseItem', secondary='perosn_item',
+                         backref=backref('person', lazy='dynamic'))
+
+
+class Family(Base):
+    __tablename__ = 'perosn_item'
+    id = sa.Column(sa.Integer, primary_key=True)
+    file_id = sa.Column(sa.Integer, nullable=True)
+    head_id = sa.Column(sa.Integer, sa.ForeignKey('person.id'))
+    head = relationship('Person')
+    district = sa.Column(sa.Unicode(1024), nullable=True)
+    area = sa.Column(sa.Unicode(1024), nullable=True)
+    address = sa.Column(sa.Unicode, nullable=True)
+
+
 Base.metadata.create_all()

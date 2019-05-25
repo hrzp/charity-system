@@ -1,10 +1,11 @@
 <template type="text/x-template">
-  <div class="component-body">
+  <div class="component-body animated fadeInUp">
     <hr>
+
     <!--Search Panel-->
     <div class="d-flex justify-content-center">
       <div class="card border-primary" style="width: 85%;">
-        <div class="card-header">Search</div>
+        <div class="card-header custome-head">Login History</div>
         <div class="card-body text-primary">
           <div class="card-text">
             <div class>
@@ -174,6 +175,9 @@ module.exports = {
       $("#mySelect2").select2({
         ajax: {
           url: "http://127.0.0.1:5000/user/list",
+          headers: {
+            Authorization: getHeaders(true)
+          },
           data: function(params) {
             var query = {};
             // Query parameters will be ?search=[term]&type=public
@@ -225,18 +229,11 @@ module.exports = {
         from_date: this.fromDate,
         to_date: this.toDate
       };
-      this.$http.post("/user/login-report", data).then(
-        function(response) {
-          this.reports = response.data.args;
-          this.convertDate(this.reports);
-        },
-        function(response) {
-          toastr.error("Error in Connection - " + response.data.msg, "Error", {
-            timeOut: 5000,
-            closeButton: true
-          });
-        }
-      );
+      let app = this;
+      API.post("/user/login-report", data).then(function(response) {
+        app.reports = response.data.args;
+        app.convertDate(app.reports);
+      });
     },
     showMoreInfo(info) {
       Alert.Info(info);
@@ -269,12 +266,13 @@ module.exports = {
     }
   },
   mounted() {
+    this.$root.isSignin();
     this.init();
   }
 };
 </script>
 
-<style lang="css">
+<style lang="css" scoped>
 .input-group.md-form.form-sm.form-1 input {
   border: 1px solid #bdbdbd;
   border-top-right-radius: 0.25rem;
@@ -293,5 +291,20 @@ module.exports = {
 }
 .input-group.md-form.form-sm.form-2 input.amber-border {
   border: 1px solid #ffca28;
+}
+.note {
+  padding: 10px;
+  border-left: 6px solid;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+.note.note-primary {
+  background-color: #dfeefd;
+  border-color: #176ac4;
+}
+p {
+  margin-top: 0;
+  margin-bottom: 0;
+  text-align: center;
 }
 </style>

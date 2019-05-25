@@ -1,6 +1,6 @@
 from sqlalchemy.orm import scoped_session
 from charity.config import server_config as config
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, jwt_required
 from flask import request, g, redirect, session
 from charity.database import db
 from datetime import timedelta
@@ -97,7 +97,7 @@ def index():
 
 
 # Setup the flask-jwt-extended extension.
-ACCESS_EXPIRES = timedelta(minutes=30)
+ACCESS_EXPIRES = timedelta(minutes=45)
 REFRESH_EXPIRES = timedelta(days=1)
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = ACCESS_EXPIRES
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = REFRESH_EXPIRES
@@ -124,6 +124,8 @@ def acc(*a):
     def func_wrapper(f):
         @wraps(f)
         def returned_wrapper(*args, **kwargs):
+            if g.user_id is None:
+                raise ErrorToClient('You are not login')
             for arg in a:
                 if arg not in g.user_roles:
                     raise ErrorToClient(
@@ -133,11 +135,25 @@ def acc(*a):
     return func_wrapper
 
 
+@jwt_required
+def auth_func(*args, **kw):
+    pass
+
+
 # use try to prevent pep8 error
 try:
     from charity.api import register_restless
     db_session = scoped_session(db.Session)
-    restless_api = flask_restless.APIManager(app, session=db_session)
+    restless_api = flask_restless.APIManager(
+        app, session=db_session, preprocessors={
+            'GET_MANY': [auth_func],
+            'GET_SINGLE': [auth_func],
+            'POST': [auth_func],
+            'PATCH_SINGLE': [auth_func],
+            'PATCH_MANY': [auth_func],
+            'DELETE_SINGLE': [auth_func],
+            'DELETE_MANY': [auth_func]
+        })
     register_restless(restless_api)
 except Exception as e:
     print(e)

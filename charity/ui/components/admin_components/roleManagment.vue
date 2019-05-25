@@ -64,57 +64,42 @@ module.exports = {
     getUsersInfo() {
       let url = "/api/user";
       if (this.$route.params.id) url = url + "/" + this.$route.params.id;
-      this.$http.get(url).then(
-        function(response) {
-          if (response.data.num_results <= 0) {
-            toastr.warn("There is no user", "Error", {
-              timeOut: 5000,
-              closeButton: true
-            });
-            return;
-          }
-          if (response.data.objects) {
-            this.users = response.data.objects;
-          } else {
-            this.users = [response.data];
-          }
-        },
-        function(response) {
-          toastr.error("Error in Connection - " + response.data.msg, "Error", {
-            timeOut: 5000,
+      let app = this;
+      API.get(url).then(function(response) {
+        if (response.data.num_results <= 0) {
+          toastr.warn("There is no user", "Error", {
+            timeOut: 8000,
             closeButton: true
           });
+          return;
         }
-      );
+        if (response.data.objects) {
+          app.users = response.data.objects;
+        } else {
+          app.users = [response.data];
+        }
+      });
     },
 
     getRolesInfo() {
-      this.$http.get("/api/role").then(
-        function(response) {
-          if (response.data.num_results <= 0) {
-            toastr.warn("There is no roles", "Error", {
-              timeOut: 5000,
-              closeButton: true
-            });
-            return;
-          }
-          let data = response.data.objects;
-          this.roles = [];
-          for (let i in data) {
-            if (!data[i].is_systemic) {
-              this.roles.push(data[i]);
-              // TODO: We have prevent this detail.it Should check from server
-            }
-          }
-          // this.userRole = '';
-        },
-        function(response) {
-          toastr.error("Error in Connection - " + response.data.msg, "Error", {
-            timeOut: 5000,
+      let app = this;
+      API.get("/api/role").then(function(response) {
+        if (response.data.num_results <= 0) {
+          toastr.warn("There is no roles", "Error", {
+            timeOut: 8000,
             closeButton: true
           });
+          return;
         }
-      );
+        let data = response.data.objects;
+        app.roles = [];
+        for (let i in data) {
+          if (!data[i].is_systemic) {
+            app.roles.push(data[i]);
+            // TODO: We have prevent this detail.it Should check from server
+          }
+        }
+      });
     },
 
     changeRole(id, userId) {
@@ -122,21 +107,14 @@ module.exports = {
         id: id,
         user_id: userId
       };
-      this.$http.post("/user/change-role", data).then(
-        function(response) {
-          toastr.success(response.data.msg, "", {
-            timeOut: 5000,
-            closeButton: true
-          });
-          this.init();
-        },
-        function(response) {
-          toastr.error("Error in Connection - " + response.data.msg, "Error", {
-            timeOut: 5000,
-            closeButton: true
-          });
-        }
-      );
+      let app = this;
+      API.post("/user/change-role", data).then(function(response) {
+        toastr.success(response.data.msg, "", {
+          timeOut: 5000,
+          closeButton: true
+        });
+        app.init();
+      });
     }
   },
   computed: {
@@ -184,14 +162,16 @@ module.exports = {
       this.init();
     }
   },
-  mounted() {},
+  mounted() {
+    this.$root.isSignin();
+  },
   created() {
     this.init();
   }
 };
 </script>
 
-<style lang="css">
+<style lang="css" scoped>
 .input-info {
   margin-top: 10%;
 }
